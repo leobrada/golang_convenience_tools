@@ -6,7 +6,7 @@ import (
 )
 
 
-func NewHTTPSClient(caCertPoolClientAccepts *x509.CertPoo, certShownByClient tls.Certificate) *http.Client {
+func NewHTTPSClient(caCertPoolClientAccepts *x509.CertPool, certShownByClient tls.Certificate) *http.Client {
 
     client := new(http.Client)
     client.Transport = &http.Transport{
@@ -21,7 +21,7 @@ func NewHTTPSClient(caCertPoolClientAccepts *x509.CertPoo, certShownByClient tls
     return client
 }
 
-func NewHTTPSClientPool(poolSize int, caCertPoolClientAccepts *x509.CertPoo, certShownByClient tls.Certificate) []*http.Client {
+func NewHTTPSClientPool(poolSize int, caCertPoolClientAccepts *x509.CertPool, certShownByClient tls.Certificate) []*http.Client {
     clientPool := make([]*http.Client, poolSize)
 
     for i := 0; i < poolSize; i++ {
