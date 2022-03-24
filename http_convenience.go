@@ -2,6 +2,7 @@ package convenience_tools
 
 import (
     "crypto/tls"
+    "crypto/x509"
     "net/http"
 )
 
