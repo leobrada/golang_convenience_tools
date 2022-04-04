@@ -2,6 +2,8 @@ package convenience_tools
 
 import (
     "fmt"
+    "strings"
+    "errors"
     "crypto/tls"
     "crypto/x509"
     "crypto/rsa"
