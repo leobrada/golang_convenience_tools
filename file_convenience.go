@@ -1,4 +1,4 @@
-package convience_tools
+package convenience_tools
 
 import (
     "os"
