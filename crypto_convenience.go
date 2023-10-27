@@ -7,20 +7,48 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 )
 
 // X509 PART
 
-// function unifies the loading of CA certificates
+// Deprecated: function unifies the loading of CA certificates
 func LoadCACertificate(certfile string, certPool *x509.CertPool) error {
-	caRoot, err := ioutil.ReadFile(certfile)
+	caRoot, err := os.ReadFile(certfile)
 	if err != nil {
 		return fmt.Errorf("loadCACertificate(): Loading CA certificate from %s error: %v", certfile, err)
 	}
 
 	certPool.AppendCertsFromPEM(caRoot)
+	return nil
+}
+
+// function unifies the loading of CA certificates and appends them to CertPool and to a slice
+func LoadCertificate(certfile string, certPool *x509.CertPool, certSlice []*x509.Certificate) error {
+	certPEM, err := os.ReadFile(certfile)
+	if err != nil {
+		return fmt.Errorf("loadCACertificate(): Loading CA certificate from %s error: %v", certfile, err)
+	}
+
+	if certPool != nil {
+		certPool.AppendCertsFromPEM(certPEM)
+	}
+
+	if certSlice != nil {
+		certDER, _ := pem.Decode(certPEM)
+		if (certDER == nil) || (certDER.Type != "CERTIFICATE") {
+			return nil
+		}
+
+		cert, err := x509.ParseCertificate(certDER.Bytes)
+		if err != nil {
+			return nil
+		}
+
+		certSlice = append(certSlice, cert)
+	}
+
 	return nil
 }
 
@@ -96,7 +124,7 @@ func ParseRsaPrivateKeyFromPemFile(privPEMLocation string) (*rsa.PrivateKey, err
 // ReadFirstPEMBlockFromFile() loads the first PEM block of a given PEM key file into a pem.Block structure
 func readFirstPEMBlockFromFile(path string) (*pem.Block, error) {
 	// Read the file content
-	pubReadIn, err := ioutil.ReadFile(path)
+	pubReadIn, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
