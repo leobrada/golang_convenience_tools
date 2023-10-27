@@ -12,7 +12,6 @@ import (
 )
 
 // X509 PART
-
 // Deprecated: function unifies the loading of CA certificates
 func LoadCACertificate(certfile string, certPool *x509.CertPool) error {
 	caRoot, err := os.ReadFile(certfile)
