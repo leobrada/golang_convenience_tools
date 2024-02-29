@@ -24,10 +24,10 @@ func LoadCACertificate(certfile string, certPool *x509.CertPool) error {
 }
 
 // function unifies the loading of CA certificates and appends them to CertPool and to a slice
-func LoadCertificate(certfile string, certPool *x509.CertPool, certSlice []*x509.Certificate) error {
+func LoadCertificate(certfile string, certPool *x509.CertPool, certSlice []*x509.Certificate) ([]*x509.Certificate, error) {
 	certPEM, err := os.ReadFile(certfile)
 	if err != nil {
-		return fmt.Errorf("loadCACertificate(): Loading CA certificate from %s error: %v", certfile, err)
+		return nil, fmt.Errorf("LoadCertificate(): Loading CA certificate from %s error: %v", certfile, err)
 	}
 
 	if certPool != nil {
@@ -37,18 +37,18 @@ func LoadCertificate(certfile string, certPool *x509.CertPool, certSlice []*x509
 	if certSlice != nil {
 		certDER, _ := pem.Decode(certPEM)
 		if (certDER == nil) || (certDER.Type != "CERTIFICATE") {
-			return nil
+			return nil, fmt.Errorf("LoadCertificate(): Could not append certificate to certificate slice error: %v", err)
 		}
 
 		cert, err := x509.ParseCertificate(certDER.Bytes)
 		if err != nil {
-			return nil
+			return nil, fmt.Errorf("LoadCertificate(): Could not append certificate to certificate slice error: %v", err)
 		}
 
 		certSlice = append(certSlice, cert)
 	}
 
-	return nil
+	return certSlice, nil
 }
 
 // function unifies the loading of X509 key pairs
