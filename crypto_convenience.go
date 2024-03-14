@@ -4,6 +4,7 @@ import (
 	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/asn1"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -59,6 +60,29 @@ func LoadX509KeyPair(certfile, keyfile string) (tls.Certificate, error) {
 	}
 
 	return keyPair, nil
+}
+
+func GetIssuerDNInDER(cert tls.Certificate) ([]byte, error) {
+	if len(cert.Certificate) == 0 {
+		return nil, fmt.Errorf("GetIssuerDNInDER(): provided certificate is empty")
+	}
+
+	// Parse the leaf certificate, assuming cert.Certificate[0] is the leaf
+	leafCert, err := x509.ParseCertificate(cert.Certificate[0])
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the issuer's Distinguished Name as an RDNSequence
+	rdnSequence := leafCert.Issuer.ToRDNSequence()
+
+	// Marshal the RDNSequence back to DER
+	derBytes, err := asn1.Marshal(rdnSequence)
+	if err != nil {
+		return nil, err
+	}
+
+	return derBytes, nil
 }
 
 // RSA PART
